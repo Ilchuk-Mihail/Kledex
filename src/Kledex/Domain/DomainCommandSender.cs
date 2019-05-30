@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Kledex.Commands;
 using Kledex.Dependencies;
@@ -39,63 +41,75 @@ namespace Kledex.Domain
         }
 
         /// <inheritdoc />
-        public async Task SendAsync<TCommand, TAggregate>(TCommand command)
-            where TCommand : IDomainCommand
-            where TAggregate : IAggregateRoot
+        public Task SendAsync<TCommand>(TCommand command) where TCommand : IDomainCommand<IAggregateRoot>
         {
-            if (command == null)
-                throw new ArgumentNullException(nameof(command));
+            throw new NotImplementedException();
 
-            var handler = _handlerResolver.ResolveHandler<IDomainCommandHandlerAsync<TCommand>>();
+            //if (command == null)
+            //    throw new ArgumentNullException(nameof(command));
 
-            var aggregateTask = _aggregateStore.SaveAggregateAsync<TAggregate>(command.AggregateRootId);
-            var commandTask = _commandStore.SaveCommandAsync<TAggregate>(command);
-            var eventsTask = handler.HandleAsync(command);
+            //var handler = _handlerResolver.ResolveHandler<IDomainCommandHandlerAsync<TCommand>>();
 
-            await Task.WhenAll(aggregateTask, commandTask, eventsTask);
+            //var aggregateType = command.GetType().GetInterfaces()[0].GetGenericArguments().FirstOrDefault();
 
-            var publishEvents = PublishEvents(command);
-            var events = await eventsTask;
 
-            foreach (var @event in events)
-            {
-                @event.Update(command);
-                var concreteEvent = _eventFactory.CreateConcreteEvent(@event);
+            //MethodInfo method = typeof(Test).GetMethod(name);
+            //MethodInfo generic = method.MakeGenericMethod(aggregateType);
+            //generic.Invoke(null, new object[] { value });
 
-                await _eventStore.SaveEventAsync<TAggregate>((IDomainEvent)concreteEvent, command.ExpectedVersion);
 
-                if (publishEvents)
-                    await _eventPublisher.PublishAsync(concreteEvent);
-            }
+
+
+
+
+            //var aggregateTask = _aggregateStore.SaveAggregateAsync<TAggregate>(command.AggregateRootId);
+            //var commandTask = _commandStore.SaveCommandAsync<TAggregate>(command);
+            //var eventsTask = handler.HandleAsync(command);
+
+            //await Task.WhenAll(aggregateTask, commandTask, eventsTask);
+
+            //var publishEvents = PublishEvents(command);
+            //var events = await eventsTask;
+
+            //foreach (var @event in events)
+            //{
+            //    @event.Update(command);
+            //    var concreteEvent = _eventFactory.CreateConcreteEvent(@event);
+
+            //    await _eventStore.SaveEventAsync<TAggregate>((IDomainEvent)concreteEvent, command.ExpectedVersion);
+
+            //    if (publishEvents)
+            //        await _eventPublisher.PublishAsync(concreteEvent);
+            //}
         }
 
         /// <inheritdoc />
-        public void Send<TCommand, TAggregate>(TCommand command) 
-            where TCommand : IDomainCommand 
-            where TAggregate : IAggregateRoot
+        public void Send<TCommand>(TCommand command) where TCommand : IDomainCommand<IAggregateRoot>
         {
-            if (command == null)
-                throw new ArgumentNullException(nameof(command));
+            throw new NotImplementedException();
 
-            var handler = _handlerResolver.ResolveHandler<IDomainCommandHandler<TCommand>>();
+            //if (command == null)
+            //    throw new ArgumentNullException(nameof(command));
 
-            _aggregateStore.SaveAggregate<TAggregate>(command.AggregateRootId);
-            _commandStore.SaveCommand<TAggregate>(command);
+            //var handler = _handlerResolver.ResolveHandler<IDomainCommandHandler<TCommand>>();
 
-            var events = handler.Handle(command);
+            //_aggregateStore.SaveAggregate<TAggregate>(command.AggregateRootId);
+            //_commandStore.SaveCommand<TAggregate>(command);
 
-            var publishEvents = PublishEvents(command);
+            //var events = handler.Handle(command);
 
-            foreach (var @event in events)
-            {
-                @event.Update(command);
-                var concreteEvent = _eventFactory.CreateConcreteEvent(@event);
+            //var publishEvents = PublishEvents(command);
 
-                _eventStore.SaveEvent<TAggregate>((IDomainEvent)concreteEvent, command.ExpectedVersion);
+            //foreach (var @event in events)
+            //{
+            //    @event.Update(command);
+            //    var concreteEvent = _eventFactory.CreateConcreteEvent(@event);
 
-                if (publishEvents)
-                    _eventPublisher.Publish(concreteEvent);
-            }
+            //    _eventStore.SaveEvent<TAggregate>((IDomainEvent)concreteEvent, command.ExpectedVersion);
+
+            //    if (publishEvents)
+            //        _eventPublisher.Publish(concreteEvent);
+            //}
         }
     }
 }

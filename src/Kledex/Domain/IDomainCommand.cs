@@ -3,7 +3,7 @@ using Kledex.Commands;
 
 namespace Kledex.Domain
 {
-    public interface IDomainCommand : ICommand
+    public interface IDomainCommand<T> : ICommand where T : IAggregateRoot
     {
         Guid Id { get; set; }
         Guid AggregateRootId { get; set; }

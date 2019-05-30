@@ -2,7 +2,7 @@
 
 namespace Kledex.Domain
 {
-    public interface IDomainCommandHandler<in TCommand> where TCommand : IDomainCommand
+    public interface IDomainCommandHandler<in TCommand> where TCommand : IDomainCommand<IAggregateRoot>
     {
         IEnumerable<IDomainEvent> Handle(TCommand command);
     }
